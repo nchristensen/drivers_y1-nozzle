@@ -7,6 +7,9 @@ order:  1
 alpha_sc: 0.5
 s0_sc: -5.0
 kappa_sc: 0.5
-integrator: rk4
-health_pres_min: 99.99
-health_pres_max: 1006.0
+integrator: euler
+#health_pres_min: 99.99
+#health_pres_max: 1006.0
+# updated to be correct with changes to isothermal BC
+health_pres_min: 99.7
+health_pres_max: 1008.5
