@@ -694,13 +694,13 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
             from mirgecom.viscous import get_viscous_timestep
             ts_field = current_cfl * get_viscous_timestep(discr, eos=eos, cv=state)
             from grudge.op import nodal_min
-            dt = nodal_min(discr, "vol", ts_field)
+            dt = actx.to_numpy(nodal_min(discr, "vol", ts_field))
             cfl = current_cfl
         else:
             from mirgecom.viscous import get_viscous_cfl
             ts_field = get_viscous_cfl(discr, eos=eos, dt=dt, cv=state)
             from grudge.op import nodal_max
-            cfl = nodal_max(discr, "vol", ts_field)
+            cfl = actx.to_numpy(nodal_max(discr, "vol", ts_field))
 
         return ts_field, cfl, min(t_remaining, dt)
 
