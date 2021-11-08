@@ -76,7 +76,7 @@ from mirgecom.euler import extract_vars_for_logging, units_for_logging
 from mirgecom.logging_quantities import (
     initialize_logmgr, logmgr_add_many_discretization_quantities,
     logmgr_add_cl_device_info, logmgr_set_time, LogUserQuantity,
-    set_sim_state
+    set_sim_state, logmgr_add_device_memory_usage
 )
 
 logger = logging.getLogger(__name__)
@@ -580,6 +580,7 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
         logmgr_add_cl_device_info(logmgr, queue)
         logmgr_set_time(logmgr, current_step, current_t)
         logmgr.add_quantity(log_cfl, interval=nstatus)
+        logmgr_add_device_memory_usage(logmgr, queue)
 
         logmgr.add_watches([
             ("step.max", "step = {value}, "),
