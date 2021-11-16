@@ -43,7 +43,7 @@ from meshmode.array_context import (
     PytatoPyOpenCLArrayContext
 )
 from mirgecom.profiling import PyOpenCLProfilingArrayContext
-from grudge.grudge_array_context import ParameterFixingPyOpenCLArrayContext
+from grudge.grudge_array_context import AutotuningArrayContext
 
 from mirgecom.navierstokes import ns_operator
 from mirgecom.fluid import make_conserved
@@ -189,7 +189,7 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
     # default i/o junk frequencies
     nviz = 100
     nrestart = 100
-    nhealth = 10
+    nhealth = 1
     nstatus = 1
 
     # default timestepping control
@@ -647,8 +647,8 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
                       ("sponge_sigma", gen_sponge()),
                       ("tagged_cells", tagged_cells),
                       ("dt" if constant_cfl else "cfl", ts_field)]
-        write_visfile(discr, viz_fields, visualizer, vizname=vizname,
-                      step=step, t=t, overwrite=True)
+        #write_visfile(discr, viz_fields, visualizer, vizname=vizname,
+        #              step=step, t=t, overwrite=True)
 
     def my_write_restart(step, t, state):
         restart_fname = restart_pattern.format(cname=casename, step=step, rank=rank)
@@ -698,7 +698,7 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
             dv = None
 
             #if logmgr:
-            #    logmgr.tick_before()
+                #logmgr.tick_before()
 
             ts_field, cfl, dt = my_get_timestep(t, dt, state)
             log_cfl.set_quantity(cfl)
@@ -805,10 +805,11 @@ if __name__ == "__main__":
     if args.profile:
         if args.lazy:
             raise ValueError("Can't use lazy and profiling together.")
-        actx_class = ParameterFixingPyOpenCLArrayContext#PyOpenCLProfilingArrayContext
+        #actx_class = PyOpenCLProfilingArrayContext
+        actx_class = AutotuningArrayContext
     else:
         actx_class = PytatoPyOpenCLArrayContext if args.lazy \
-            else ParameterFixingPyOpenCLArrayContext#PyOpenCLArrayContext
+            else PyOpenCLArrayContext
 
     restart_filename = None
     if args.restart_file:
