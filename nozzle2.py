@@ -43,7 +43,8 @@ from meshmode.array_context import (
     PytatoPyOpenCLArrayContext
 )
 from mirgecom.profiling import PyOpenCLProfilingArrayContext
-from grudge.grudge_array_context import AutotuningArrayContext
+from grudge.grudge_array_context import AutotuningArrayContext, ParameterFixingPyOpenCLArrayContext
+from mirgecom.array_context import MirgecomAutotuningArrayContext
 
 from mirgecom.navierstokes import ns_operator
 from mirgecom.fluid import make_conserved
@@ -194,7 +195,7 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
 
     # default timestepping control
     integrator = "rk4"
-    current_dt = .5*5.0e-8
+    current_dt = .01*5.0e-8
     t_final = 20*current_dt#5.0e-6
     current_cfl = 1.0
     current_t = 0
@@ -206,7 +207,7 @@ def main(ctx_factory=cl.create_some_context, restart_filename=None,
     health_pres_max = 2.0e6
 
     # discretization and model control
-    order = 2
+    order = 1
     alpha_sc = 0.5
     s0_sc = -5.0
     kappa_sc = 0.5
@@ -806,10 +807,10 @@ if __name__ == "__main__":
         if args.lazy:
             raise ValueError("Can't use lazy and profiling together.")
         #actx_class = PyOpenCLProfilingArrayContext
-        actx_class = AutotuningArrayContext
+        actx_class = MirgecomAutotuningArrayContext
     else:
         actx_class = PytatoPyOpenCLArrayContext if args.lazy \
-            else PyOpenCLArrayContext
+            else ParameterFixingPyOpenCLArrayContext#MirgecomAutotuningArrayContext#PyOpenCLArrayContext
 
     restart_filename = None
     if args.restart_file:
